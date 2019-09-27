@@ -1,4 +1,4 @@
-# リプレイ動画を作成するプログラム（openCV，wxPython 使用）
+# リプレイ動画を作成するプログラム（OpenCV，wxPython 使用）
 import cv2
 import datetime
 import os
