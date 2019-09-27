@@ -1,17 +1,17 @@
-# リプレイ動画を作成するプログラム
+# リプレイ動画を作成するプログラム（openCV，wxPython 使用）
 import cv2
+import datetime
 import os
 import threading
 import wx
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
-videos = []
-_sum = 0
-
-
 # ドラッグ&ドロップ
 class FileDropTarget(wx.FileDropTarget):
+    videos = []
+    _sum = 0
+
     def __init__(self, window):
         wx.FileDropTarget.__init__(self)
         self.window = window
@@ -22,51 +22,43 @@ class FileDropTarget(wx.FileDropTarget):
         video = cv2.VideoCapture(files[0])
         if video.isOpened() == True:
             self.window.text_entry.SetLabel('\"{}\" が正常に読み込まれました．'.format(files[0]))
-            videos.append(video)
+            FileDropTarget.videos.append(video)
             self.window.listbox.Append(files[0])
-            
-            global _sum
-            _sum += video.get(cv2.CAP_PROP_FRAME_COUNT)
-            _sum = int(_sum)
+            FileDropTarget._sum += video.get(cv2.CAP_PROP_FRAME_COUNT)
+            FileDropTarget._sum = int(FileDropTarget._sum)
         else:
             self.window.text_entry.SetLabel('読み込みエラー')
 
         return 0
 
 
-# GUI
-class App(wx.Frame):
-    def callback(self, event):
-        th = threading.Thread(target=self.click_button, args=(event,))
-        th.start()
-        
+# ボタン
+class Button():
+    def __init__(self, window):
+        self.window = window
+        now = datetime.datetime.now
+        self.dirname = 'replay'
+        self.filename = 'replay_{}.mp4'.format(now.strftime('%Y%m%d_%H%M%S'))
+        self.sec = 1     # つなぎ目のモザイク時間（秒）を指定（動画の最後と最初にかけるので実質2倍の長さになることに注意）
+        self.fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')     # 形式を指定
+        self.fps = FileDropTarget.videos[0].get(cv2.CAP_PROP_FPS)
+        self.height = FileDropTarget.videos[0].get(cv2.CAP_PROP_FRAME_HEIGHT)
+        self.width  = FileDropTarget.videos[0].get(cv2.CAP_PROP_FRAME_WIDTH)
 
-    # ボタンを押したときの処理
+    
     def click_button(self, event):
-        dirname = 'replay'
-        filename = '{}/replay.mp4'.format(dirname)
-        sec = 1     # つなぎ目のモザイク時間（秒）を指定（動画の最後と最初にかけるので実質2倍の長さになることに注意）
-
-        # 形式を指定
-        fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
-
-        # 一つ目の動画情報を取得
-        fps = videos[0].get(cv2.CAP_PROP_FPS)
-        height = videos[0].get(cv2.CAP_PROP_FRAME_HEIGHT)
-        width  = videos[0].get(cv2.CAP_PROP_FRAME_WIDTH)
-
-        l = fps * sec
+        l = self.fps * self.sec
 
         # dirnameで指定した名前のファイル（出力先のファイル）がなければ作る
-        if not os.path.exists(dirname):
-            os.mkdir(dirname)
+        if not os.path.exists(self.dirname):
+            os.mkdir(self.dirname)
 
         # 出力先のファイルを開く
-        out = cv2.VideoWriter(filename, int(fourcc), fps, (int(width), int(height)))
+        out = cv2.VideoWriter('{}/{}'.format(self.dirname, self.filename), int(self.fourcc), self.fps, (int(self.width), int(self.height)))
 
         s_num = 1
 
-        for v in videos:
+        for v in FileDropTarget.videos:
             # 総フレーム数の情報を取得
             count = v.get(cv2.CAP_PROP_FRAME_COUNT)
 
@@ -78,18 +70,18 @@ class App(wx.Frame):
             
             num = 1
             ratio = 0.01
-            if v == videos[0]:
+            if v == FileDropTarget.videos[0]:
                 ratio = 0.1
                 
             # フレームの読み込みに成功している間フレームを書き出し続ける
             while ret == True:
-                if v != videos[0] and num <= l:
+                if v != FileDropTarget.videos[0] and num <= l:
                     # モザイク処理（縮小，拡大）
                     red = cv2.resize(frame, None, fx=ratio, fy=ratio, interpolation=cv2.INTER_NEAREST)
                     frame = cv2.resize(red, frame.shape[:2][::-1], interpolation=cv2.INTER_NEAREST)
                     ratio = ratio + 0.09 / l
 
-                if v != videos[-1] and num > count - l:
+                if v != FileDropTarget.videos[-1] and num > count - l:
                     # モザイク処理（縮小，拡大）
                     red = cv2.resize(frame, None, fx=ratio, fy=ratio, interpolation=cv2.INTER_NEAREST)
                     frame = cv2.resize(red, frame.shape[:2][::-1], interpolation=cv2.INTER_NEAREST)
@@ -98,8 +90,7 @@ class App(wx.Frame):
                 # 読み込んだフレームを書き込み
                 out.write(frame)
 
-                global _sum
-                self.text_entry.SetLabel('進行中．．． {} / {}'.format(s_num, _sum))
+                self.window.text_entry.SetLabel('進行中．．． {} / {}'.format(s_num, FileDropTarget._sum))
 
                 # 次のフレームを読み込み
                 ret, frame = v.read()
@@ -107,9 +98,11 @@ class App(wx.Frame):
                 num += 1
                 s_num += 1
 
-        self.text_entry.SetLabel('完了')
-            
+        self.window.text_entry.SetLabel('完了')
 
+
+# GUI
+class App(wx.Frame):
     def __init__(self, parent, id, title):
         wx.Frame.__init__(self, parent, id, title, size=(700, 500), style=wx.DEFAULT_FRAME_STYLE)
 
@@ -130,7 +123,6 @@ class App(wx.Frame):
 
         # ボタン
         button = wx.Button(p, wx.ID_ANY, '作成')
-
         button.Bind(wx.EVT_BUTTON, self.callback)
 
         # レイアウト
@@ -142,6 +134,12 @@ class App(wx.Frame):
         p.SetSizer(layout)
 
         self.Show()
+
+
+    def callback(self, event):
+        btn = Button(self)
+        th = threading.Thread(target=btn.click_button, args=(event,))
+        th.start()
 
 
 if __name__ == '__main__':
