@@ -3,6 +3,7 @@ import cv2
 import datetime
 import os
 import threading
+import time
 import wx
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -21,13 +22,13 @@ class FileDropTarget(wx.FileDropTarget):
     def OnDropFiles(self, x, y, files):
         video = cv2.VideoCapture(files[0])
         if video.isOpened() == True:
-            self.window.text_entry.SetLabel('\"{}\" が正常に読み込まれました．'.format(files[0]))
             FileDropTarget.videos.append(video)
-            self.window.listbox.Append(files[0])
+            self.window.listbox.Append('{}（フレーム数：{}）'.format(files[0], int(video.get(cv2.CAP_PROP_FRAME_COUNT))))
             FileDropTarget._sum += video.get(cv2.CAP_PROP_FRAME_COUNT)
             FileDropTarget._sum = int(FileDropTarget._sum)
+            self.window.text_entry.SetLabel('\"{}\" が正常に読み込まれました．（総フレーム数：{}）'.format(files[0], FileDropTarget._sum))
         else:
-            self.window.text_entry.SetLabel('読み込みエラー')
+            self.window.text_entry.SetLabel('読み込みエラー（総フレーム数：{}）'.format(FileDropTarget._sum))
 
         return 0
 
@@ -36,7 +37,7 @@ class FileDropTarget(wx.FileDropTarget):
 class Button():
     def __init__(self, window):
         self.window = window
-        now = datetime.datetime.now
+        now = datetime.datetime.now()
         self.dirname = 'replay'
         self.filename = 'replay_{}.mp4'.format(now.strftime('%Y%m%d_%H%M%S'))
         self.sec = 1     # つなぎ目のモザイク時間（秒）を指定（動画の最後と最初にかけるので実質2倍の長さになることに注意）
@@ -57,6 +58,8 @@ class Button():
         out = cv2.VideoWriter('{}/{}'.format(self.dirname, self.filename), int(self.fourcc), self.fps, (int(self.width), int(self.height)))
 
         s_num = 1
+
+        start = time.time()
 
         for v in FileDropTarget.videos:
             # 総フレーム数の情報を取得
@@ -90,7 +93,19 @@ class Button():
                 # 読み込んだフレームを書き込み
                 out.write(frame)
 
-                self.window.text_entry.SetLabel('進行中．．． {} / {}'.format(s_num, FileDropTarget._sum))
+                if s_num == 200:
+                    elapsed = time.time() - start
+                    pred = int(elapsed * FileDropTarget._sum / 200)
+                    minute = int(pred / 60)
+                    second = int(pred % 60)
+
+                if s_num <= 200:
+                    self.window.text_entry.SetLabel('進行中... {} / {} （計測中）'.format(s_num, FileDropTarget._sum))
+                else:
+                    if pred < 60:
+                        self.window.text_entry.SetLabel('進行中... {} / {} （推定時間：{}秒）'.format(s_num, FileDropTarget._sum, pred))
+                    else:
+                        self.window.text_entry.SetLabel('進行中... {} / {} （推定時間：{}分{}秒）'.format(s_num, FileDropTarget._sum, minute, second))
 
                 # 次のフレームを読み込み
                 ret, frame = v.read()
