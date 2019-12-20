@@ -38,5 +38,5 @@ class Organize():
 
 if __name__ == '__main__':
     organize = Organize()
-    filelist = organize.listup('dir', 1)
+    filelist = organize.listup('dir', 0)
     organize.save(filelist, 'filelist.csv')
