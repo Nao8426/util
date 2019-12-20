@@ -12,7 +12,7 @@ class Organize():
         filelist = []
         for root, dirs, files in os.walk(self.dirname):
             for f in files:
-                filelist.append(os.path.join(root, f).split('\\')[1:])
+                filelist.append(os.path.join(root, f).split('\\'))
 
         return filelist
 
@@ -36,5 +36,5 @@ class Organize():
 
 
 if __name__ == '__main__':
-    organize = Organize('./dir')
-    organize.main('./filelist.csv')
+    organize = Organize('dir')
+    organize.main('filelist.csv')
