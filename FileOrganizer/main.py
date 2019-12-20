@@ -5,21 +5,21 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
 class Organize():
-    def __init__(self, dirname):
-        self.dirname = dirname
-
-
-    def listup(self):
+    # mode=0 : パスをそのままcsv出力する．
+    # mode=1 : ディレクトリ，ファイルの階層ごとに分けてcsv出力を行う．
+    def listup(self, dirname, mode=0):
         filelist = []
-        for root, dirs, files in os.walk(self.dirname):
+        for root, dirs, files in os.walk(dirname):
             for f in files:
-                filelist.append(os.path.join(root, f).split('\\'))
+                if mode == 0:
+                    filelist.append([os.path.join(root, f)])
+                elif mode == 1:
+                    filelist.append(os.path.join(root, f).split('\\'))
 
         return filelist
 
 
-    def main(self, out_path):
-        filelist = self.listup()
+    def save(self, filelist, out_path):
         if os.path.exists(out_path):
             while 1:
                 check = input('同じ名前のファイルが存在しますが上書きしますか？(y/n) : ')
@@ -37,5 +37,6 @@ class Organize():
 
 
 if __name__ == '__main__':
-    organize = Organize('dir')
-    organize.main('filelist.csv')
+    organize = Organize()
+    filelist = organize.listup('dir', 1)
+    organize.save(filelist, 'filelist.csv')
