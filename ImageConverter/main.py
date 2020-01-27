@@ -39,8 +39,8 @@ class Button():
             os.mkdir('./output')
 
         option = self.window.combobox.GetStringSelection()
-        self.window.text_entry.SetLabel('変換開始')
         num = 1
+        self.window.text_entry.SetLabel('変換開始')
         for path in FileDropTarget.imgs:
             convert = Convert(path)
             if option == 'gray':
