@@ -17,7 +17,6 @@ class FileDropTarget(wx.FileDropTarget):
         wx.FileDropTarget.__init__(self)
         self.window = window
 
-
     # 実行処理
     def OnDropFiles(self, x, y, files):
         video = cv2.VideoCapture(files[0])
@@ -45,7 +44,6 @@ class Button():
         self.fps = FileDropTarget.videos[0].get(cv2.CAP_PROP_FPS)
         self.height = FileDropTarget.videos[0].get(cv2.CAP_PROP_FRAME_HEIGHT)
         self.width  = FileDropTarget.videos[0].get(cv2.CAP_PROP_FRAME_WIDTH)
-
     
     def click_button(self, event):
         l = self.fps * self.sec
@@ -155,7 +153,6 @@ class App(wx.Frame):
         p.SetSizer(layout)
 
         self.Show()
-
 
     def callback(self, event):
         btn = Button(self)

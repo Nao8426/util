@@ -15,7 +15,6 @@ class FileDropTarget(wx.FileDropTarget):
         wx.FileDropTarget.__init__(self)
         self.window = window
 
-
     # ドロップされたときの処理
     def OnDropFiles(self, x, y, files):
         # ここに処理内容を書く（下記は例）
@@ -30,7 +29,6 @@ class FileDropTarget(wx.FileDropTarget):
 class Button():
     def __init__(self, window):
         self.window = window
-
     
     # ボタンを押したときの処理
     def click_button(self, event):
@@ -96,7 +94,6 @@ class App(wx.Frame):
 
         self.Show()
 
-
     def callback(self, event):
         btn = Button(self)
         th = threading.Thread(target=btn.click_button, args=(event,))
@@ -107,16 +104,13 @@ class Convert():
     def __init__(self, path):
         self.img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
 
-
     def gray(self):
         return self.img
-
 
     def binary(self):
         b_img = cv2.threshold(self.img, 0, 255, cv2.THRESH_OTSU)
         
         return b_img
-
 
     def contour(self):
         neiborhood24 = np.array([[1, 1, 1, 1, 1],

@@ -8,8 +8,11 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 class Contour():
     def __init__(self):
-        self.kernel = np.array([[1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1]])
-
+        self.kernel = np.array([[1, 1, 1, 1, 1], 
+                                [1, 1, 1, 1, 1],
+                                [1, 1, 1, 1, 1],
+                                [1, 1, 1, 1, 1],
+                                [1, 1, 1, 1, 1]])
 
     def main(self, path):
         gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)

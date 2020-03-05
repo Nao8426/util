@@ -18,7 +18,6 @@ class Organize():
 
         return filelist
 
-
     def save(self, filelist, out_path):
         if os.path.exists(out_path):
             while 1:

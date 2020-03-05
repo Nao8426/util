@@ -22,10 +22,8 @@ class Dataset(torch.utils.data.Dataset):
             for x in zip(*l):
                 self.l_T = list(x)
 
-
     def __len__(self):
         return len(self.l_T)
-
 
     def __getitem__(self, i):
         image = Image.open(self.l_T[i])
@@ -74,7 +72,6 @@ class Generator(nn.Module):
             nn.Tanh()
         )
 
-
     def forward(self, x):
         return self.model(x)
 
@@ -103,7 +100,6 @@ class Discriminator(nn.Module):
             nn.Sigmoid()
         )
 
-
     def forward(self, x):
         return self.model(x).squeeze()
 
@@ -112,7 +108,6 @@ class MyLoss():
     def __init__(self):
         self.BCE_loss = nn.BCEWithLogitsLoss()
         self.L1_loss = nn.L1Loss()
-
 
     def loss(self, a, b, c, d, alpha=1):
         return self.BCE_loss(a, b)+alpha*self.L1_loss(c, d)
