@@ -1,7 +1,7 @@
 # 実行プログラム
 import os
 import wx
-# 自作ライブラリ
+# 自作モジュール
 from GUI import App
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 

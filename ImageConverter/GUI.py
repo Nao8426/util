@@ -16,23 +16,26 @@ class App(wx.Frame):
         label = wx.StaticText(p, wx.ID_ANY, 'ここにファイルをドロップしてください', style=wx.SIMPLE_BORDER | wx.TE_CENTER)
         label.SetBackgroundColour('#e0ffff')
 
-        # リストボックス
-        self.listbox = wx.ListBox(p, wx.ID_ANY, size=(700, 150), style=wx.LB_NEEDED_SB | wx.LB_HSCROLL)
-
         # ドロップ対象の設定
         label.SetDropTarget(FileDropTarget(self))
 
-        # テキスト入力ウィジット
-        self.text_entry = wx.TextCtrl(p, wx.ID_ANY)
+        # リストボックス
+        self.listbox = wx.ListBox(p, wx.ID_ANY, size=(700, 150), style=wx.LB_NEEDED_SB | wx.LB_HSCROLL)
+        element_array = ['gray', 'binary', 'contour']
+        self.combobox = wx.ComboBox(p, wx.ID_ANY, '選択してください', choices=element_array, style=wx.CB_DROPDOWN)
 
         # ボタン
-        button = wx.Button(p, wx.ID_ANY, '作成')
+        button = wx.Button(p, wx.ID_ANY, '変換')
         button.Bind(wx.EVT_BUTTON, self.callback)
+
+        # テキスト入力ウィジット
+        self.text_entry = wx.TextCtrl(p, wx.ID_ANY)
 
         # レイアウト
         layout = wx.BoxSizer(wx.VERTICAL)
         layout.Add(label, flag=wx.EXPAND | wx.ALL, border=10, proportion=1)
         layout.Add(self.listbox, flag=wx.EXPAND | wx.ALL, border=10)
+        layout.Add(self.combobox, flag=wx.EXPAND | wx.ALL, border=10)
         layout.Add(button)
         layout.Add(self.text_entry, flag=wx.EXPAND | wx.ALL, border=10)
         p.SetSizer(layout)
