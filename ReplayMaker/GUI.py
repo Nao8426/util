@@ -11,22 +11,22 @@ class App(wx.Frame):
         wx.Frame.__init__(self, parent, id, title, size=(700, 500), style=wx.DEFAULT_FRAME_STYLE)
 
         # パネル
-        p = wx.Panel(self, wx.ID_ANY)
+        panel = wx.Panel(self, wx.ID_ANY)
 
-        label = wx.StaticText(p, wx.ID_ANY, 'ここにファイルをドロップしてください', style=wx.SIMPLE_BORDER | wx.TE_CENTER)
+        label = wx.StaticText(panel, wx.ID_ANY, 'ここにファイルをドロップしてください', style=wx.SIMPLE_BORDER | wx.TE_CENTER)
         label.SetBackgroundColour('#e0ffff')
 
         # リストボックス
-        self.listbox = wx.ListBox(p, wx.ID_ANY, size=(700, 150), style=wx.LB_NEEDED_SB | wx.LB_HSCROLL)
+        self.listbox = wx.ListBox(panel, wx.ID_ANY, size=(700, 150), style=wx.LB_NEEDED_SB | wx.LB_HSCROLL)
 
         # ドロップ対象の設定
         label.SetDropTarget(FileDropTarget(self))
 
         # テキスト入力ウィジット
-        self.text_entry = wx.TextCtrl(p, wx.ID_ANY)
+        self.text_entry = wx.TextCtrl(panel, wx.ID_ANY)
 
         # ボタン
-        button = wx.Button(p, wx.ID_ANY, '作成')
+        button = wx.Button(panel, wx.ID_ANY, '作成')
         button.Bind(wx.EVT_BUTTON, self.callback)
 
         # レイアウト
@@ -35,7 +35,7 @@ class App(wx.Frame):
         layout.Add(self.listbox, flag=wx.EXPAND | wx.ALL, border=10)
         layout.Add(button)
         layout.Add(self.text_entry, flag=wx.EXPAND | wx.ALL, border=10)
-        p.SetSizer(layout)
+        panel.SetSizer(layout)
 
         self.Show()
 
