@@ -90,8 +90,8 @@ class Button():
 
                 if s_num == 200:
                     elapsed = time.time() - start
-                    pred = int(elapsed * FileDropTarget._sum / 200)
-                    minute = int(pred / 60)
+                    pred = elapsed * FileDropTarget._sum // 200
+                    minute = pred // 60
                     second = pred % 60
 
                 if s_num <= 200:
@@ -112,6 +112,6 @@ class Button():
         if proc_time < 60:
             self.window.text_entry.SetLabel('完了（処理時間：{}秒）'.format(proc_time))
         else:
-            proc_minute = int(proc_time / 60)
+            proc_minute = proc_time // 60
             proc_second = proc_time % 60
             self.window.text_entry.SetLabel('完了（処理時間：{}分{}秒）'.format(proc_minute, proc_second))
